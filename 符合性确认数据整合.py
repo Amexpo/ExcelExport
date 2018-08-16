@@ -4,12 +4,11 @@ Created on Tue Aug 14 08:56:47 2018
 
 @author: yangyanhao
 """
-
 import os
 import time
 import xlwt
-import win32com.client
-import requests
+import xlrd
+
 
 def time_compare(file_dir):
     ft=time.gmtime(os.stat(file_dir).st_mtime)
@@ -19,27 +18,33 @@ def time_compare(file_dir):
        )
     return(x)
 
-def xls_write(file_dir,name,worksheet,k):
-    workbook = xlrd.open_workbook(file_dir)
+
+    
+def xls_write(dir_list,worksheet,
+              #file_name,
+              init):#file_dir,name):
+    workbook = xlrd.open_workbook(dir_list[0])
     sheet1 = workbook.sheet_by_index(1)
-    for i in range(3,sheet1.nrows):
-        row = sheet1.row_values(i)
+    #write_file_name =GetTime()+'符合性确认数据.xls'
+    #workbook = xlwt.Workbook(file_name)#write_file_name)
+    #worksheet = workbook.add_sheet('统计数据')
+    for h in range(3,sheet1.nrows):
+        row = sheet1.row_values(h)
         for j in range(7):
-            worksheet.write(i+k, j, label = row[j])
-        worksheet.write(i+k, 7, label = name)
-    workbook.save(write_file_name)
-    return()
-
-def write_file():
-    return()
-
-write_file_name =GetTime()+'.xls'
-workbook = xlwt.Workbook(write_file_name)
-worksheet = workbook.add_sheet('服务性检测')
+            worksheet.write(h+init-3, j, label = row[j])
+        worksheet.write(h+init-3, 7, label = dir_list[1])
+    #workbook.save(file_name)
+    if ((sheet1.nrows-3)<0):
+        rows=0
+    else:
+        rows=sheet1.nrows-3
+    return(rows)
 
 
-path='2018年\\'
-def byyyh(path):
+def find_dir(path):
+    write_file_name =time.strftime("%Y-%m-%d",time.localtime(time.time()))+'符合性确认数据.xls'
+    workbook = xlwt.Workbook(write_file_name)
+    worksheet = workbook.add_sheet('统计数据') 
     path_set=[]
     name_set=[]
     list_dir=os.listdir(path)
@@ -55,10 +60,20 @@ def byyyh(path):
                 path3=path+list_dir[i]+'\\'+list_dir1[j]+'\\'+list_dir2[k]
                 list_dir3=os.listdir(path3)
                 for l in range(len(list_dir3)-1):
-                    path4=path+list_dir[i]+'\\'+list_dir1[j]+'\\'+list_dir2[k]+'\\'+list_dir3[l]
-                    path_set.append(path4)
-    return(path_set,name_set)
-    
+                    if list_dir3[l][-3:]=='xls':
+                        path4=path+list_dir[i]+'\\'+list_dir1[j]+'\\'+list_dir2[k]+'\\'+list_dir3[l]
+                        path_set.append([path4,name])
+                    else:
+                        pass
+    return(path_set)
+
 write_file_name =time.strftime("%Y-%m-%d",time.localtime(time.time()))+'符合性确认数据.xls'
-workbook = xlwt.Workbook(write_file_name)
-worksheet = workbook.add_sheet('统计数据') 
+y=find_dir('2018年\\')
+init=0
+
+workbook = xlwt.Workbook(write_file_name)#write_file_name)
+worksheet = workbook.add_sheet('统计数据')
+for o in range(len(y)):
+    x=xls_write(y[o],worksheet,init)
+    init+=(x)
+workbook.save(write_file_name)
