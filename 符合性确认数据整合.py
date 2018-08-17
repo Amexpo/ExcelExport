@@ -1,7 +1,13 @@
 # -*- coding: utf-8 -*-
 """
-Created on Tue Aug 14 08:56:47 2018
+Created on Fri Aug 17 11:37:45 2018
 
+@author: yangyanhao
+"""
+
+# -*- coding: utf-8 -*-
+"""
+Created on Tue Aug 14 08:56:47 2018
 @author: yangyanhao
 """
 
@@ -11,7 +17,7 @@ import xlwt
 import xlrd
 
 
-def time_compare(file_dir):                         #系统时间减3个月
+def time_compare(file_dir):
     ft=time.gmtime(os.stat(file_dir).st_mtime)
     nt=time.localtime(time.time())
     x=((ft[0]*12+ft[1]*30+ft[2])>
@@ -21,16 +27,20 @@ def time_compare(file_dir):                         #系统时间减3个月
 
 
     
-def xls_write(dir_list,worksheet,init):             #Excel写入
+def xls_write(dir_list,worksheet,
+              #file_name,
+              init):#file_dir,name):
     workbook = xlrd.open_workbook(dir_list[0])
     sheet1 = workbook.sheet_by_index(1)
-
+    #write_file_name =GetTime()+'符合性确认数据.xls'
+    #workbook = xlwt.Workbook(file_name)#write_file_name)
+    #worksheet = workbook.add_sheet('统计数据')
     for h in range(3,sheet1.nrows):
         row = sheet1.row_values(h)
         for j in range(7):
             worksheet.write(h+init-3, j, label = row[j])
         worksheet.write(h+init-3, 7, label = dir_list[1])
-
+    #workbook.save(file_name)
     if ((sheet1.nrows-3)<0):
         rows=0
     else:
@@ -38,7 +48,7 @@ def xls_write(dir_list,worksheet,init):             #Excel写入
     return(rows)
 
 
-def find_dir(path):                     #文件夹
+def find_dir(path):
     path_set=[]
     name_set=[]
     list_dir=os.listdir(path)
@@ -64,12 +74,11 @@ def find_dir(path):                     #文件夹
                         pass
     return(path_set)
 
-def file_open(file):            #整合创建
-    file=input('文件夹（默认'2018年//'或'2017年//'）：')
+def Excel_create(file):
     write_file_name =time.strftime("%Y-%m-%d",time.localtime(time.time()))+'符合性确认数据.xls'
     y=find_dir(file)
     init=0
-    workbook = xlwt.Workbook(write_file_name)
+    workbook = xlwt.Workbook(write_file_name)#write_file_name)
     worksheet = workbook.add_sheet('统计数据')
     for o in range(len(y)):
         x=xls_write(y[o],worksheet,init)
@@ -77,4 +86,4 @@ def file_open(file):            #整合创建
     workbook.save(write_file_name)
     return()
 
-file_open()
+Excel_create('2018年\\')
