@@ -4,11 +4,13 @@ Created on Tue Aug 14 08:56:47 2018
 
 @author: yangyanhao
 """
+
 import os
 import time
 import xlwt
 import xlrd
-
+import win32com.client
+import requests
 
 def time_compare(file_dir):
     ft=time.gmtime(os.stat(file_dir).st_mtime)
@@ -47,6 +49,7 @@ def find_dir(path):
     worksheet = workbook.add_sheet('统计数据') 
     path_set=[]
     name_set=[]
+    x=0
     list_dir=os.listdir(path)
     for i in range(len(list_dir)):
         path1=path+list_dir[i]
@@ -62,7 +65,10 @@ def find_dir(path):
                 for l in range(len(list_dir3)-1):
                     if list_dir3[l][-3:]=='xls':
                         path4=path+list_dir[i]+'\\'+list_dir1[j]+'\\'+list_dir2[k]+'\\'+list_dir3[l]
-                        path_set.append([path4,name])
+                        if (time_compare(path4)==1):
+                            path_set.append([path4,name])
+                        else:
+                            pass
                     else:
                         pass
     return(path_set)
