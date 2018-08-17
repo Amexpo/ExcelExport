@@ -9,10 +9,9 @@ import os
 import time
 import xlwt
 import xlrd
-import win32com.client
-import requests
 
-def time_compare(file_dir):
+
+def time_compare(file_dir):                         #系统时间减3个月
     ft=time.gmtime(os.stat(file_dir).st_mtime)
     nt=time.localtime(time.time())
     x=((ft[0]*12+ft[1]*30+ft[2])>
@@ -22,20 +21,16 @@ def time_compare(file_dir):
 
 
     
-def xls_write(dir_list,worksheet,
-              #file_name,
-              init):#file_dir,name):
+def xls_write(dir_list,worksheet,init):             #Excel写入
     workbook = xlrd.open_workbook(dir_list[0])
     sheet1 = workbook.sheet_by_index(1)
-    #write_file_name =GetTime()+'符合性确认数据.xls'
-    #workbook = xlwt.Workbook(file_name)#write_file_name)
-    #worksheet = workbook.add_sheet('统计数据')
+
     for h in range(3,sheet1.nrows):
         row = sheet1.row_values(h)
         for j in range(7):
             worksheet.write(h+init-3, j, label = row[j])
         worksheet.write(h+init-3, 7, label = dir_list[1])
-    #workbook.save(file_name)
+
     if ((sheet1.nrows-3)<0):
         rows=0
     else:
@@ -43,13 +38,9 @@ def xls_write(dir_list,worksheet,
     return(rows)
 
 
-def find_dir(path):
-    write_file_name =time.strftime("%Y-%m-%d",time.localtime(time.time()))+'符合性确认数据.xls'
-    workbook = xlwt.Workbook(write_file_name)
-    worksheet = workbook.add_sheet('统计数据') 
+def find_dir(path):                     #文件夹
     path_set=[]
     name_set=[]
-    x=0
     list_dir=os.listdir(path)
     for i in range(len(list_dir)):
         path1=path+list_dir[i]
@@ -73,13 +64,17 @@ def find_dir(path):
                         pass
     return(path_set)
 
-write_file_name =time.strftime("%Y-%m-%d",time.localtime(time.time()))+'符合性确认数据.xls'
-y=find_dir('2018年\\')
-init=0
+def file_open(file):            #整合创建
+    file=input('文件夹（默认'2018年//'或'2017年//'）：')
+    write_file_name =time.strftime("%Y-%m-%d",time.localtime(time.time()))+'符合性确认数据.xls'
+    y=find_dir(file)
+    init=0
+    workbook = xlwt.Workbook(write_file_name)
+    worksheet = workbook.add_sheet('统计数据')
+    for o in range(len(y)):
+        x=xls_write(y[o],worksheet,init)
+        init+=(x)
+    workbook.save(write_file_name)
+    return()
 
-workbook = xlwt.Workbook(write_file_name)#write_file_name)
-worksheet = workbook.add_sheet('统计数据')
-for o in range(len(y)):
-    x=xls_write(y[o],worksheet,init)
-    init+=(x)
-workbook.save(write_file_name)
+file_open()
