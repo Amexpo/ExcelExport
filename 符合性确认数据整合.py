@@ -1,12 +1,5 @@
 # -*- coding: utf-8 -*-
 """
-Created on Fri Aug 17 11:37:45 2018
-
-@author: yangyanhao
-"""
-
-# -*- coding: utf-8 -*-
-"""
 Created on Tue Aug 14 08:56:47 2018
 @author: yangyanhao
 """
@@ -16,7 +9,7 @@ import time
 import xlwt
 import xlrd
 
-
+x=time.time()
 def time_compare(file_dir):
     ft=time.gmtime(os.stat(file_dir).st_mtime)
     nt=time.localtime(time.time())
@@ -27,20 +20,14 @@ def time_compare(file_dir):
 
 
     
-def xls_write(dir_list,worksheet,
-              #file_name,
-              init):#file_dir,name):
+def xls_write(dir_list,worksheet,init,Order):
     workbook = xlrd.open_workbook(dir_list[0])
-    sheet1 = workbook.sheet_by_index(1)
-    #write_file_name =GetTime()+'符合性确认数据.xls'
-    #workbook = xlwt.Workbook(file_name)#write_file_name)
-    #worksheet = workbook.add_sheet('统计数据')
+    sheet1 = workbook.sheet_by_index(Order)
     for h in range(3,sheet1.nrows):
         row = sheet1.row_values(h)
         for j in range(7):
             worksheet.write(h+init-3, j, label = row[j])
         worksheet.write(h+init-3, 7, label = dir_list[1])
-    #workbook.save(file_name)
     if ((sheet1.nrows-3)<0):
         rows=0
     else:
@@ -59,31 +46,43 @@ def find_dir(path):
             name=list_dir1[j][9:]
             name_set.append(name)
             path2=path+list_dir[i]+'\\'+list_dir1[j]
-            list_dir2=os.listdir(path2)
-            for k in range(len(list_dir2)-1):
-                path3=path+list_dir[i]+'\\'+list_dir1[j]+'\\'+list_dir2[k]
-                list_dir3=os.listdir(path3)
-                for l in range(len(list_dir3)-1):
-                    if list_dir3[l][-3:]=='xls':
-                        path4=path+list_dir[i]+'\\'+list_dir1[j]+'\\'+list_dir2[k]+'\\'+list_dir3[l]
-                        if (time_compare(path4)==1):
-                            path_set.append([path4,name])
-                        else:
-                            pass
+            if os.path.isdir(path2)==1:
+                list_dir2=os.listdir(path2)
+                for k in range(len(list_dir2)-1):
+                    path3=path+list_dir[i]+'\\'+list_dir1[j]+'\\'+list_dir2[k]
+                    if os.path.isdir(path3)==1:
+                        list_dir3=os.listdir(path3)
+                        for l in range(len(list_dir3)-1):
+                            if list_dir3[l][-3:]=='xls':
+                                path4=path+list_dir[i]+'\\'+list_dir1[j]+'\\'+list_dir2[k]+'\\'+list_dir3[l]
+                                if (time_compare(path4)==1):
+                                    path_set.append([path4,name])
+                                else:
+                                    pass
+                            else:
+                                pass
                     else:
-                        pass
+                       pass
+            else:
+                pass
     return(path_set)
 
-def Excel_create(file):
-    write_file_name =time.strftime("%Y-%m-%d",time.localtime(time.time()))+'符合性确认数据.xls'
+def Excel_create(file,Order):
+    write_file_name =time.strftime("%Y-%m-%d",time.localtime(time.time()))+'符合性确认数据-'+file[:4]+'-'+str(Order)+'.xls'
     y=find_dir(file)
     init=0
-    workbook = xlwt.Workbook(write_file_name)#write_file_name)
+    workbook = xlwt.Workbook(write_file_name)
     worksheet = workbook.add_sheet('统计数据')
     for o in range(len(y)):
-        x=xls_write(y[o],worksheet,init)
-        init+=(x)
+        try:
+            x=xls_write(y[o],worksheet,init,Order)
+            init+=(x)
+        except:
+            pass
     workbook.save(write_file_name)
     return()
 
-Excel_create('2018年\\')
+Excel_create('2018年\\',2)
+Excel_create('2018年\\',1)
+Excel_create('2017年\\',2)
+Excel_create('2017年\\',1)
