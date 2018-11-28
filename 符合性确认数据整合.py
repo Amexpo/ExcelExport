@@ -9,17 +9,17 @@ import time
 import xlwt
 import xlrd
 
-x=time.time()
+# 日期比较
 def time_compare(file_dir):
     ft=time.gmtime(os.stat(file_dir).st_mtime)
     nt=time.localtime(time.time())
-    x=((ft[0]*12+ft[1]*30+ft[2])>
-       (nt[0]*12+nt[1]*30+nt[2]-90)
+    x=((ft[0]*365+ft[1]*30+ft[2])>
+       (nt[0]*365+nt[1]*30+nt[2]-90)
        )
     return(x)
 
 
-    
+# write Excel方法
 def xls_write(dir_list,worksheet,init,Order):
     workbook = xlrd.open_workbook(dir_list[0])
     sheet1 = workbook.sheet_by_index(Order)
@@ -34,8 +34,8 @@ def xls_write(dir_list,worksheet,init,Order):
         rows=sheet1.nrows-3
     return(rows)
 
-
-def find_dir(path):
+#旧结构 目录获取
+def find_dir1(path):
     path_set=[]
     name_set=[]
     list_dir=os.listdir(path)
@@ -67,9 +67,27 @@ def find_dir(path):
                 pass
     return(path_set)
 
+#新结构 目录获取
+def find_dir2(path):
+    path_set=[]
+    name_set=[]
+    list_dir=os.listdir(path)
+    for i in range(len(list_dir)):
+        path1=path+list_dir[i]
+        list_dir1=os.listdir(path1)
+        for j in range(len(list_dir1)):
+            if list_dir1[j][-3:]=='xls':
+                name=list_dir1[j][11:-4]
+                path2=path+list_dir[i]+'\\'+list_dir1[j]
+                if (time_compare(path2)==1):
+                    path_set.append([path2,name])
+                    name_set.append(name)
+    return(path_set)
+
+# 通过file路径写入Excel
 def Excel_create(file,Order):
     write_file_name =time.strftime("%Y-%m-%d",time.localtime(time.time()))+'符合性确认数据-'+file[:4]+'-'+str(Order)+'.xls'
-    y=find_dir(file)
+    y=find_dir1(file)+find_dir2(file)
     init=0
     workbook = xlwt.Workbook(write_file_name)
     worksheet = workbook.add_sheet('统计数据')
@@ -81,7 +99,9 @@ def Excel_create(file,Order):
             pass
     workbook.save(write_file_name)
     return()
-
+'''
+x=find_dir2('2018年\\')
+'''
 Excel_create('2018年\\',2)
 Excel_create('2018年\\',1)
 Excel_create('2017年\\',2)
